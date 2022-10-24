@@ -12,7 +12,7 @@ except according to the terms contained in the LICENSE file.
 <template>
   <modal :state="state" backdrop hideable @hide="cancel">
     <template #title>
-      {{ attachment.exists ? $t('title.replace') : $t('title.upload') }}
+      {{ attachment.blobExists ? $t('title.replace') : $t('title.upload') }}
     </template>
     <template #body>
       <div class="modal-introduction">
@@ -61,7 +61,7 @@ export default {
     attachment() {
       return this.plannedUploads.length === 1
         ? this.plannedUploads[0].attachment
-        : { name: '', exists: false };
+        : { name: '', blobExists: false };
     },
     file() {
       return this.plannedUploads.length === 1

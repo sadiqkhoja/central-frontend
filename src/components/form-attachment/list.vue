@@ -28,6 +28,7 @@ except according to the terms contained in the LICENSE file.
           <th class="form-attachment-list-type">{{ $t('header.type') }}</th>
           <th class="form-attachment-list-name">{{ $t('header.name') }}</th>
           <th class="form-attachment-list-uploaded">{{ $t('header.uploaded') }}</th>
+          <th class="form-attachment-list-action"></th>
         </tr>
       </thead>
       <tbody v-if="form.dataExists && attachments.dataExists">
@@ -36,7 +37,9 @@ except according to the terms contained in the LICENSE file.
           :file-is-over-drop-zone="fileIsOverDropZone && !disabled"
           :dragover-attachment="dragoverAttachment"
           :planned-uploads="plannedUploads"
-          :updated-attachments="updatedAttachments" :data-name="attachment.name"/>
+          :updated-attachments="updatedAttachments" :data-name="attachment.name"
+          :linkable="!!dsHashset && dsHashset.has(attachment.name)"          
+          :data-index="index" @restore="showRestoreModal($event)"/>
       </tbody>
     </table>
     <form-attachment-popups
@@ -51,7 +54,10 @@ except according to the terms contained in the LICENSE file.
     <form-attachment-name-mismatch :state="nameMismatch.state"
       :planned-uploads="plannedUploads" @hide="hideModal('nameMismatch')"
       @confirm="uploadFiles" @cancel="cancelUploads"/>
-  </div>
+
+    <restore-link v-if="attachments != null" v-bind="restoreModal"
+      @hide="hideModal('restoreModal')" @success="afterRestore"/>
+</div>
 </template>
 
 <script>
@@ -62,6 +68,7 @@ import FormAttachmentNameMismatch from './name-mismatch.vue';
 import FormAttachmentPopups from './popups.vue';
 import FormAttachmentRow from './row.vue';
 import FormAttachmentUploadFiles from './upload-files.vue';
+import RestoreLink from './restore-link.vue';
 import dropZone from '../../mixins/drop-zone';
 import modal from '../../mixins/modal';
 import request from '../../mixins/request';
@@ -75,14 +82,21 @@ export default {
     FormAttachmentNameMismatch,
     FormAttachmentPopups,
     FormAttachmentRow,
-    FormAttachmentUploadFiles
+    FormAttachmentUploadFiles,
+    RestoreLink
   },
   mixins: [dropZone(), modal(), request()],
   inject: ['alert'],
   setup() {
-    const { form, resourceView } = useRequestData();
+    const { form, resourceView, datasets } = useRequestData();
     const attachments = resourceView('attachments', (data) => data.get());
-    return { form, attachments };
+    return { form, attachments, datasets };
+  },
+  props: {
+    projectId: {
+      type: String,
+      required: true
+    }
   },
   data() {
     return {
@@ -135,6 +149,10 @@ export default {
       nameMismatch: {
         state: false
       },
+      restoreModal: {
+        state: false,
+        attachmentName: ''
+      },
       // Used for testing
       uploading: false
     };
@@ -142,7 +160,13 @@ export default {
   computed: {
     disabled() {
       return this.uploadStatus.total !== 0;
+    },
+    dsHashset() {
+      return this.datasets ? new Set(this.datasets.map(d => `${d.name}.csv`)) : null;
     }
+  },
+  created() {
+    this.fetchDatasets();
   },
   methods: {
     ////////////////////////////////////////////////////////////////////////////
@@ -318,6 +342,7 @@ export default {
           // should be OK.
           const updatedAt = new Date().toISOString();
           updates.push([attachment.name, updatedAt]);
+          //updatedAttachments.push({ ...attachment, blobExists: true, datasetExists: false, updatedAt });
         });
     },
     uploadFiles() {
@@ -357,6 +382,30 @@ export default {
         });
       this.plannedUploads = [];
       this.unmatchedFiles = [];
+    },
+    fetchDatasets() {
+      this.$store.dispatch('get', [{
+        key: 'datasets',
+        url: apiPaths.datasets(this.projectId),
+        resend: false
+      }]).catch(noop);
+    },
+    showRestoreModal(name) {
+      this.restoreModal.attachmentName = name;
+      this.showModal('restoreModal');
+    },
+    afterRestore() {
+      const index = this.attachments.findIndex(attachment =>
+        attachment.name === this.restoreModal.attachmentName);
+
+      const updatedAttachment = { ...this.attachments[index], datasetExists: true, blobExists: false };
+
+      this.$store.commit('setDataProp', {
+        key: 'attachments',
+        prop: index,
+        value: updatedAttachment
+      });
+      this.hideModal('restoreModal');
     }
   }
 };

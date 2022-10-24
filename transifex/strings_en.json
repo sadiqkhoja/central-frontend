@@ -1614,6 +1614,21 @@
         }
       }
     },
+    "FormAttachmentRestoreLink": {
+      "title": {
+        "string": "Restore Dataset Link",
+        "developer_comment": "This is the title at the top of a pop-up."
+      },
+      "introduction": {
+        "string": "Are you sure you want to restore the Dataset link? The override file you uploaded will be deleted. You can always upload it again later."
+      },
+      "action": {
+        "restore": {
+          "string": "Restore",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        }
+      }
+    },
     "FormAttachmentRow": {
       "type": {
         "image": {
@@ -1645,6 +1660,15 @@
         "title": {
           "string": "To upload files, drag and drop one or more files onto this page"
         }
+      },
+      "linkedToDataset": {
+        "string": "Linked to Dataset {datasetName}"
+      },
+      "uploadToOverride": {
+        "string": "Upload a file to override."
+      },
+      "restoreDatasetLink": {
+        "string": "Restore Dataset Link"
       }
     },
     "FormAttachmentUploadFiles": {

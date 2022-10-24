@@ -142,7 +142,7 @@ describe('FormHead', () => {
 
     describe('badge', () => {
       it('shows the correct count if all files are missing', () => {
-        testData.standardFormAttachments.createPast(2, { exists: false });
+        testData.standardFormAttachments.createPast(2, { blobExists: false });
         return load('/projects/1/forms/f/draft/attachments').then(app => {
           const badge = app.get('#form-head-draft-nav .nav-tabs .badge');
           badge.text().should.equal('2');
