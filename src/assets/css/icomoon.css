@@ -222,3 +222,6 @@
 .icon-link:before {
   content: "\e9cb";
 }
+.icon-database:before {
+  content: "\e964";
+}

@@ -34,7 +34,39 @@ except according to the terms contained in the LICENSE file.
       <div class="modal-introduction">
         <p>{{ $t('introduction[0]') }}</p>
         <p>{{ $t('introduction[1]') }}</p>
+
+        <template v-if="formDraft.entityRelated">
+          <hr/>
+          <i18n-t tag="p" keypath="dataset.introduction">
+            <template #inAddition>
+              <strong>{{ $t('dataset.inAddition') }}</strong>
+            </template>
+          </i18n-t>
+          <ul class="dataset-list">
+            <template v-for="dataset of datasetDiff">            
+              <i18n-t v-if="true || dataset.isNew" tag="li" keypath="dataset.newDataset">
+                <template #datasetName>
+                  <strong>{{ dataset.name }}</strong>
+                </template>                
+              </i18n-t>
+              <template v-for="property of dataset.properties">
+                <i18n-t v-if="true || property.isNew" tag="li" keypath="dataset.newProperty">
+                  <template #datasetName>
+                    <strong>{{ dataset.name }}</strong>
+                  </template>      
+                  <template #propertyName>
+                    <strong>{{ property.name }}</strong>
+                  </template>           
+                </i18n-t>   
+              </template>
+            </template>                 
+          </ul>
+        </template>
+        
+        <hr v-if="draftVersionStringIsDuplicate" />
         <p v-if="draftVersionStringIsDuplicate">{{ $t('introduction[2]') }}</p>
+        
+        <p>{{ $t('introduction[3]') }}</p>
       </div>
       <form v-if="draftVersionStringIsDuplicate || versionConflict" @submit.prevent="publish">
         <form-group ref="versionString" v-model.trim="versionString"
@@ -93,9 +125,9 @@ export default {
   setup() {
     // The component does not assume that this data will exist when the
     // component is created.
-    const { formVersions, attachments, resourceView } = useRequestData();
+    const { formVersions, attachments, resourceView, datasetDiff } = useRequestData();
     const formDraft = resourceView('formDraft', (data) => data.get());
-    return { formVersions, formDraft, attachments };
+    return { formVersions, formDraft, attachments, datasetDiff };
   },
   data() {
     return {
@@ -159,6 +191,33 @@ export default {
 };
 </script>
 
+<style lang="scss">
+@import '../../assets/scss/variables';
+@import '../../assets/css/icomoon';
+
+.dataset-list {
+  list-style: none;
+  padding-left: 5px;
+
+  li::before {
+    @extend [class^="icon-"];
+    content: '\f055';
+    margin-right:5px;
+    color: green;
+  }
+}
+
+.field-list{
+  list-style: none;
+
+  li::before {
+    @extend [class^="icon-"];
+    content: '\f055';
+  }
+}
+
+</style>
+
 <i18n lang="json5">
 {
   "en": {
@@ -179,7 +238,8 @@ export default {
     "introduction": [
       "You are about to make this Draft the published version of your Form. This will finalize any changes you have made to the Form definition and its attached Media Files.",
       "Existing Form Submissions will be unaffected, but all Draft test Submissions will be removed.",
-      "Every version of a Form requires a unique version name. Right now, your Draft Form has the same version name as a previously published version. You can set a new one by uploading a Form definition with your desired name, or you can type a new one below and the server will change it for you."
+      "Every version of a Form requires a unique version name. Right now, your Draft Form has the same version name as a previously published version. You can set a new one by uploading a Form definition with your desired name, or you can type a new one below and the server will change it for you.",
+      "Would you like to proceed?"
     ],
     "field": {
       // This is the text of a form field. It is used to specify a unique
@@ -188,6 +248,16 @@ export default {
     },
     "problem": {
       "409_6": "The version name of this Draft conflicts with a past version of this Form or a deleted Form. Please use the field below to change it to something new or upload a new Form definition."
+    },
+    "dataset": {
+      "introduction": "{inAddition}, this Form definition requires the following changes to be made to this Project:",
+      "inAddition": "In addition",
+      "newDataset": "A new dataset {datasetName} will be created.",
+      "newProperty": "In dataset {datasetName}, a new field {propertyName} will be created.",
+      "existingDataset": "Following fields will be added to existing Dataset {datasetName}:",
+      "existingFields": "Form definition includes following dataset fields which are already there in the Dataset {datasetName}",
+      "noChange": "{inAddition}, Form definition includes a definition for Dataset {datasetName} but dataset and all its fields are already present in the project, following are the dataset fields defined by the form:",
+      "noChangeNoField": "{inAddition}, Form definition includes a definition for Dataset {datasetName} but dataset is already present in the project. This Form has not defined any dataset fields."
     }
   }
 }
