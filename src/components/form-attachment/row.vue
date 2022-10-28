@@ -13,7 +13,7 @@ except according to the terms contained in the LICENSE file.
   <tr :class="htmlClass">
     <td class="form-attachment-list-type">{{ type }}</td>
     <td :title="attachment.name" class="form-attachment-list-name">
-      <a v-if="attachment.exists" :href="href" target="_blank">
+      <a v-if="attachment.blobExists" :href="href" target="_blank">
         {{ attachment.name }}
       </a>
       <template v-else>
@@ -21,7 +21,18 @@ except according to the terms contained in the LICENSE file.
       </template>
     </td>
     <td class="form-attachment-list-uploaded">
-      <template v-if="attachment.exists">
+      <template v-if="attachment.datasetExists">
+        <span class="icon-link"></span>
+        <i18n-t keypath="linkedToDataset">
+          <template #datasetName>
+            <a ref="link" :href="datasetLink" target="_blank"> {{ datasetName }}</a>
+          </template>
+        </i18n-t>
+        <span v-show="targeted" class="label label-primary">
+          {{ $t('replace') }}
+        </span>
+      </template>
+      <template v-else-if="attachment.blobExists">
         <date-time :iso="attachment.updatedAt"/>
         <span v-show="targeted" class="label label-primary">
           {{ $t('replace') }}
@@ -34,6 +45,16 @@ except according to the terms contained in the LICENSE file.
         </span>
       </template>
     </td>
+    <td class="text-right">
+      <template v-if="attachment.datasetExists">
+        {{ $t('uploadToOverride') }}
+      </template>
+      <template v-else-if="linkable && !attachment.datasetExists">
+        <button type="button" class="btn btn-primary" @click="$emit('restore', attachment.name)">
+          <span class="icon-link"></span>{{ $t('restoreDatasetLink') }}
+        </button>
+      </template>
+    </td>
   </tr>
 </template>
 
@@ -41,10 +62,11 @@ except according to the terms contained in the LICENSE file.
 import DateTime from '../date-time.vue';
 import { apiPaths } from '../../util/request';
 import { useRequestData } from '../../request-data';
+import LinkIfCan from '../link-if-can.vue';
 
 export default {
   name: 'FormAttachmentRow',
-  components: { DateTime },
+  components: { DateTime, LinkIfCan },
   props: {
     attachment: {
       type: Object,
@@ -62,9 +84,15 @@ export default {
     updatedAttachments: {
       type: Set,
       required: true
+    },
+    linkable: {
+      type: Boolean,
+      default: false
     }
   },
   setup() {
+  // emits: ['restore'],
+  // computed: {
     // The component assumes that this data will exist when the component is
     // created.
     const { form } = useRequestData();
@@ -103,6 +131,12 @@ export default {
         this.form.xmlFormId,
         this.attachment.name
       );
+    },
+    datasetName() {
+      return this.attachment.name.replace(/.csv$/, '');
+    },
+    datasetLink() {
+      return apiPaths.datasetDownload(this.form.projectId, this.datasetName);
     }
   }
 };
@@ -139,6 +173,13 @@ export default {
         cursor: help;
       }
     }
+
+    .form-attachment-list-uploaded{
+      .icon-link {
+        margin-right: 2px;
+        color: $color-action-foreground;
+      }
+    }
   }
 }
 </style>
@@ -160,7 +201,10 @@ export default {
       // This is shown for a Media File that has not been uploaded.
       "text": "Not yet uploaded",
       "title": "To upload files, drag and drop one or more files onto this page"
-    }
+    },
+    "linkedToDataset": "Linked to Dataset {datasetName}",
+    "uploadToOverride": "Upload a file to override.",
+    "restoreDatasetLink": "Restore Dataset Link"
   }
 }
 </i18n>

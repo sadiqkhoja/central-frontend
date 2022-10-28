@@ -74,7 +74,7 @@ export default ({ i18n }, createResource) => {
       if (attachments.isEmpty()) return 0;
       let count = 0;
       for (const attachment of attachments.get().values()) {
-        if (!attachment.exists) count += 1;
+        if (!attachment.blobExists && !attachment.datasetExists) count += 1;
       }
       return count;
     })
