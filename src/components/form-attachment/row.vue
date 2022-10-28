@@ -62,7 +62,6 @@ except according to the terms contained in the LICENSE file.
 import DateTime from '../date-time.vue';
 import { apiPaths } from '../../util/request';
 import { useRequestData } from '../../request-data';
-import { requestData } from '../../store/modules/request';
 import LinkIfCan from '../link-if-can.vue';
 
 export default {

@@ -1523,6 +1523,9 @@
         },
         "success": {
           "string": "{count, plural, one {{count} file has been successfully uploaded.} other {{count} files have been successfully uploaded.}}"
+        },
+        "restore": {
+          "string": "Dataset link for {attachmentName} restored successfully."
         }
       }
     },

@@ -39,7 +39,7 @@ except according to the terms contained in the LICENSE file.
           :planned-uploads="plannedUploads"
           :updated-attachments="updatedAttachments" :data-name="attachment.name"
           :linkable="!!dsHashset && dsHashset.has(attachment.name)"          
-          :data-index="index" @restore="showRestoreModal($event)"/>
+          @restore="showRestoreModal($event)"/>
       </tbody>
     </table>
     <form-attachment-popups
@@ -75,6 +75,7 @@ import request from '../../mixins/request';
 import { apiPaths } from '../../util/request';
 import { noop } from '../../util/util';
 import { useRequestData } from '../../request-data';
+import useProject from '../../request-data/project';
 
 export default {
   name: 'FormAttachmentList',
@@ -88,9 +89,10 @@ export default {
   mixins: [dropZone(), modal(), request()],
   inject: ['alert'],
   setup() {
-    const { form, resourceView, datasets } = useRequestData();
+    const { form, resourceView } = useRequestData();
+    const { datasets } = useProject();
     const attachments = resourceView('attachments', (data) => data.get());
-    return { form, attachments, datasets };
+   return { form, attachments, datasets };
   },
   props: {
     projectId: {
@@ -371,7 +373,8 @@ export default {
           this.attachments.patch(() => {
             for (const [name, updatedAt] of updates) {
               const attachment = this.attachments.get(name);
-              attachment.exists = true;
+              attachment.blobExists = true;
+              attachment.datasetExists = false;
               attachment.updatedAt = updatedAt;
 
               this.updatedAttachments.add(name);
@@ -384,28 +387,28 @@ export default {
       this.unmatchedFiles = [];
     },
     fetchDatasets() {
-      this.$store.dispatch('get', [{
-        key: 'datasets',
-        url: apiPaths.datasets(this.projectId),
-        resend: false
-      }]).catch(noop);
+      this.datasets.request({
+          url: apiPaths.datasets(this.projectId),
+          resend: false
+        }).catch(noop);
     },
     showRestoreModal(name) {
       this.restoreModal.attachmentName = name;
       this.showModal('restoreModal');
     },
     afterRestore() {
-      const index = this.attachments.findIndex(attachment =>
-        attachment.name === this.restoreModal.attachmentName);
-
-      const updatedAttachment = { ...this.attachments[index], datasetExists: true, blobExists: false };
-
-      this.$store.commit('setDataProp', {
-        key: 'attachments',
-        prop: index,
-        value: updatedAttachment
+      this.alert.success(this.$t('alert.restore', {
+        attachmentName: this.restoreModal.attachmentName
+      }));
+      
+      this.attachments.patch(() => {
+        const attachment = this.attachments.get(this.restoreModal.attachmentName);
+        attachment.datasetExists = true;
+        attachment.blobExists = false;
       });
+
       this.hideModal('restoreModal');
+      
     }
   }
 };
@@ -473,7 +476,8 @@ export default {
     },
     "alert": {
       "readError": "Something went wrong while reading “{filename}”.",
-      "success": "{count} file has been successfully uploaded. | {count} files have been successfully uploaded."
+      "success": "{count} file has been successfully uploaded. | {count} files have been successfully uploaded.",
+      "restore": "Dataset link for {attachmentName} restored successfully."
     }
   }
 }
