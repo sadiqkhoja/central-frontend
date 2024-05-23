@@ -14,6 +14,10 @@ except according to the terms contained in the LICENSE file.
 <template>
   <span class="form-version-standard-buttons">
     <enketo-preview :form-version="version"/>
+    <router-link class="btn btn-default btn-web-form" :to="formPath('preview')" target="_blank">
+      <span class="icon-eye"></span>
+      New Preview
+    </router-link>
     <form-version-def-dropdown :version="version"
       @view-xml="$emit('view-xml')"/>
   </span>
@@ -22,6 +26,7 @@ except according to the terms contained in the LICENSE file.
 <script>
 import EnketoPreview from '../enketo/preview.vue';
 import FormVersionDefDropdown from './def-dropdown.vue';
+import useRoutes from '../../composables/routes';
 
 export default {
   name: 'FormVersionStandardButtons',
@@ -32,12 +37,21 @@ export default {
       required: true
     }
   },
-  emits: ['view-xml']
+  emits: ['view-xml'],
+  setup() {
+    const { formPath } = useRoutes();
+    return {
+      formPath
+    };
+  }
 };
 </script>
 
 <style lang="scss">
 .form-version-standard-buttons .enketo-preview {
+  margin-right: 5px;
+}
+.form-version-standard-buttons .btn-web-form {
   margin-right: 5px;
 }
 </style>

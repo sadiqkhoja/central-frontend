@@ -13,14 +13,17 @@ except according to the terms contained in the LICENSE file.
   <div>
     <!-- If the user's session is restored during the initial navigation, that
     will affect how the navbar is rendered. -->
-    <navbar v-show="routerReady"/>
+    <navbar v-if="!$route.meta.standalone" v-show="routerReady"/>
     <alert id="app-alert"/>
     <!-- Specifying .capture so that an alert is not hidden immediately if it
     was shown after the click. -->
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-    <div class="container-fluid" @click.capture="hideAlertAfterClick">
+    <div v-if="!$route.meta.standalone" class="container-fluid" @click.capture="hideAlertAfterClick">
       <router-view/>
     </div>
+    <template v-if="$route.meta.standalone">
+      <router-view/>
+    </template>
     <div id="tooltips"></div>
   </div>
 </template>
