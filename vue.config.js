@@ -25,39 +25,10 @@ module.exports = {
     if (process.env.NODE_ENV === 'test') {
       config.resolve.alias.set('vue$', 'vue/dist/vue.esm-bundler.js');
     }
-
-    const splitChunks = config.optimization.get('splitChunks');
-    splitChunks.cacheGroups.odkWebForms = {
-      test: /[\\/]node_modules[\\/]@odk-web-forms/,
-      name: 'chunk-vendors-odk-web-forms',
-      priority: 10,
-      chunks: 'initial'
-    };
-
-    // config.optimization.splitChunks(splitChunks);
-
-    // config.resolve.alias.set('/fonts', '@odk-web-forms/ui-vue/fonts');
-
-    // config.module
-    //   .rule('vue')
-    //   .use('vue-loader')
-    //   .tap(options => ({
-    //     ...options,
-    //     compilerOptions: {
-    //       // treat any tag that starts with ion- as custom elements
-    //       isCustomElement: tag => tag.startsWith('my-')
-    //     }
-    //   }))
   },
   css: {
     loaderOptions: {
       css: { url: false }
-      // css: { url: {
-      //   filter: (url, resourcePath) => {
-      //     if(resourcePath.includes('odk-web-forms')) return true;
-      //     return false;
-      //   }
-      // } }
     }
   },
   lintOnSave: false,

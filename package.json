@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.1.0",
-    "@odk-web-forms/ui-vue": "file:../web-forms/packages/ui-vue/dist/",
+    "@getodk/web-forms": "^0.1.1",
     "axios": "^0.22.0",
     "bootstrap": "~3",
     "dompurify": "~2",

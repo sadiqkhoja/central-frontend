@@ -12,7 +12,6 @@ except according to the terms contained in the LICENSE file.
 import axios from 'axios';
 import { Translation } from 'vue-i18n';
 import { createPinia } from 'pinia';
-import { webFormsPlugin } from '@getodk/web-forms';
 
 import createAlert from './alert';
 import createCentralI18n from './i18n';
@@ -70,8 +69,6 @@ export default ({
     app.use(container.pinia);
     app.use(container.requestData);
     if (container.router != null) app.use(container.router);
-
-    app.use(webFormsPlugin);
 
     app.provide('container', container);
     for (const key of provide)

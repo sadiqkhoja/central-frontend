@@ -10,7 +10,7 @@ including this file, may be copied, modified, propagated, or distributed
 except according to the terms contained in the LICENSE file.
 -->
 <template>
-  <div>
+  <div :class="features">
     <!-- If the user's session is restored during the initial navigation, that
     will affect how the navbar is rendered. -->
     <navbar v-if="!$route.meta.standalone" v-show="routerReady"/>
@@ -36,6 +36,7 @@ import Navbar from './navbar.vue';
 
 import useCallWait from '../composables/call-wait';
 import useDisabled from '../composables/disabled';
+import useFeatureFlags from '../composables/feature-flags';
 import { useRequestData } from '../request-data';
 import { useSessions } from '../util/session';
 
@@ -46,10 +47,11 @@ export default {
   setup() {
     useSessions();
     useDisabled();
+    const { features } = useFeatureFlags();
 
     const { centralVersion } = useRequestData();
     const { callWait } = useCallWait();
-    return { centralVersion, callWait };
+    return { centralVersion, callWait, features };
   },
   computed: {
     routerReady() {

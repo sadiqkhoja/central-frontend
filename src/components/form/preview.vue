@@ -1,6 +1,7 @@
 <template>
       <template v-if="formVersionXml.dataExists">
-        <OdkWebForm :form-xml="formVersionXml.data" @submit="handleSubmit" />
+        <OdkWebForm :form-xml="formVersionXml.data" @submit="handleSubmit"/>
+        <!-- <OWF :form-xml="formVersionXml.data" @submit="handleSubmit"/> -->
       </template>
 
       <modal id="owf-submission-preview" :state="previewState" hideable backdrop
@@ -13,22 +14,40 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
-import { OdkWebForm } from '@getodk/web-forms';
+import { ref, createApp, getCurrentInstance } from 'vue';
+// import { OdkWebForm } from '@odk-web-forms/ui-vue';
+import { OdkWebForm, webFormsPlugin } from '@getodk/web-forms';
 import useForm from '../../request-data/form';
 import { apiPaths } from '../../util/request';
 import { noop } from '../../util/util';
 import Modal from '../modal.vue';
 
-import '@odk-web-forms/ui-vue/style.css';
+import '@getodk/web-forms/style.css';
 
-const props = defineProps(['projectId', 'xmlFormId']);
+// Install WebFormsPlugin in the component instead of installing it at the
+// application level so that @getodk/web-forms package is not loaded for every
+// page, thus increasing the initial bundle
+const app = createApp({});
+app.use(webFormsPlugin);
+const inst = getCurrentInstance();
+// webFormsPlugin just adds config property to the appContext
+inst.appContext.config = app._context.config;
+
+
+const props = defineProps({
+  projectId: {
+    type: String,
+    required: true
+  },
+  xmlFormId: {
+    type: String,
+    required: true
+  }
+});
 
 const { form, formVersionXml } = useForm();
 
 const previewState = ref(false);
-
-const formInstanceData = ref('');
 
 const defPath = (extension) => {
   const { projectId, xmlFormId, publishedAt } = form;
@@ -42,44 +61,16 @@ const fetchForm = () => {
   const url = apiPaths.form(props.projectId, props.xmlFormId);
   form.request({ url, extended: true })
     .then(() => {
-      formVersionXml.request({ url: defPath('.xml') }).then(() => {
-        console.log(formVersionXml);
-      }).catch(noop);
+      formVersionXml.request({ url: defPath('.xml') });
     })
     .catch(noop);
-}
+};
 
 fetchForm();
 
-var prettifyXml = function(sourceXml)
-{
-    var xmlDoc = new DOMParser().parseFromString(sourceXml, 'application/xml');
-    var xsltDoc = new DOMParser().parseFromString([
-        // describes how we want to modify the XML - indent everything
-        '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
-        '  <xsl:strip-space elements="*"/>',
-        '  <xsl:template match="para[content-style][not(text())]">', // change to just text() to strip space in text nodes
-        '    <xsl:value-of select="normalize-space(.)"/>',
-        '  </xsl:template>',
-        '  <xsl:template match="node()|@*">',
-        '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
-        '  </xsl:template>',
-        '  <xsl:output indent="yes"/>',
-        '</xsl:stylesheet>',
-    ].join('\n'), 'application/xml');
-
-    var xsltProcessor = new XSLTProcessor();    
-    xsltProcessor.importStylesheet(xsltDoc);
-    var resultDoc = xsltProcessor.transformToDocument(xmlDoc);
-    var resultXml = new XMLSerializer().serializeToString(resultDoc);
-    return resultXml;
-};
-
-const handleSubmit = (d) => {
-  console.log(d);
+const handleSubmit = () => {
   previewState.value = true;
-  formInstanceData.value = prettifyXml(d.trim());
-}
+};
 </script>
 
 <style lang="scss">
