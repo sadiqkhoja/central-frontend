@@ -31,7 +31,12 @@ export default (container, {
   const { requestData, alert, unsavedChanges, config } = container;
   const { session } = requestData;
 
-
+  router.beforeEach((to, from) => {
+    console.log(to, from);
+    // ...
+    // explicitly return false to cancel the navigation
+    return true;
+  });
 
 /* eslint-disable indent */ // TODO/vue3
 ////////////////////////////////////////////////////////////////////////////////

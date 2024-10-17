@@ -219,7 +219,9 @@
     // This text is show on a button that the user clicks to see the Form preview in the new Web Forms component
     "newPreview": "New Preview",
     "expand": "Expand",
-    "collapse": "Collapse"
+    "collapse": "Collapse",
+    // @transifexKey audit.action.restore
+    "restore": "Undelete"
   },
   "field": {
     "comment": "Leave a comment…",
@@ -271,7 +273,8 @@
     "entities": "Total Entities",
     // This is the text of a table column header. The column shows the date and time of the 
     // newest entity
-    "lastEntity": "Latest Entity"
+    "lastEntity": "Latest Entity",
+    "deletedAt": "Deleted At"
   },
   "plural": {
     "appUser": "App User | App Users",

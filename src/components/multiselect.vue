@@ -15,7 +15,8 @@ except according to the terms contained in the LICENSE file.
     not show a menu with the placeholder option. This approach seems to work
     across browsers. -->
     <select :id="toggleId" ref="toggle" class="form-control"
-      :aria-disabled="options == null" data-toggle="dropdown" role="button"
+      :aria-disabled="options == null || disabled" :data-toggle="disabled ? null : 'dropdown'" role="button"
+      v-tooltip.aria-describedby="disabledMessage"
       aria-haspopup="true" aria-expanded="false" :aria-label="label"
       @keydown="toggleAfterEnter" @mousedown.prevent @click="verifyAttached">
       <option value="">{{ selectOption }}</option>
@@ -148,6 +149,16 @@ const props = defineProps({
     required: false
   },
   empty: {
+    type: String,
+    required: false
+  },
+
+  // disabled the control
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  disabledMessage: {
     type: String,
     required: false
   }
@@ -351,7 +362,7 @@ onUnmounted(() => { $dropdown.value.off('.bs.dropdown'); });
 const toggle = ref(null);
 const $toggle = computed(() => $(toggle.value));
 const toggleAfterEnter = ({ key }) => {
-  if (key === 'Enter') $toggle.value.dropdown('toggle');
+  if (key === 'Enter' && !this.disabled) $toggle.value.dropdown('toggle');
 };
 
 const verifyAttached = process.env.NODE_ENV === 'test'
