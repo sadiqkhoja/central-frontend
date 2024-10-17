@@ -12,12 +12,13 @@ except according to the terms contained in the LICENSE file.
 <template>
   <table-freeze v-if="project.dataExists" id="submission-table" ref="table"
     :data="chunkyOData" key-prop="__id" :frozen-only="fields == null" divider
-    @action="review">
+    @action="handleActions">
     <template #head-frozen>
       <th><span class="sr-only">{{ $t('common.rowNumber') }}</span></th>
       <th v-if="!draft">{{ $t('header.submitterName') }}</th>
       <th>{{ $t('header.submissionDate') }}</th>
-      <th v-if="!draft">{{ $t('header.stateAndActions') }}</th>
+      <th v-if="!draft && !deleted">{{ $t('header.stateAndActions') }}</th>
+      <th v-if="!draft && deleted">{{ $t('header.deletedAt') }}</th>
     </template>
     <template #head-scrolling>
       <template v-if="fields != null">
@@ -30,7 +31,7 @@ except according to the terms contained in the LICENSE file.
 
     <template #data-frozen="{ data, index }">
       <submission-metadata-row :project-id="projectId" :xml-form-id="xmlFormId"
-        :draft="draft" :submission="data"
+        :draft="draft" :submission="data" :deleted="deleted" :awaiting-response="awaitingDeletedResponses.has(data.__id)"
         :row-number="odata.originalCount - index" :can-update="canUpdate"/>
     </template>
     <template #data-scrolling="{ data }">
@@ -48,7 +49,7 @@ import SubmissionMetadataRow from './metadata-row.vue';
 import TableFreeze from '../table-freeze.vue';
 
 import useChunkyArray from '../../composables/chunky-array';
-import { markRowsChanged } from '../../util/dom';
+import { markRowsChanged, markRowsDeleted } from '../../util/dom';
 import { useRequestData } from '../../request-data';
 
 defineOptions({
@@ -63,10 +64,14 @@ defineProps({
     type: String,
     required: true
   },
+  deleted: {
+    type: Boolean,
+    required: true
+  },
   draft: Boolean,
   fields: Array
 });
-const emit = defineEmits(['review']);
+const emit = defineEmits(['review', 'delete', 'restore']);
 
 // The component does not assume that this data will exist when the component is
 // created.
@@ -76,12 +81,25 @@ const chunkyOData = useChunkyArray(computed(() => odata.value));
 const canUpdate = computed(() =>
   project.dataExists && project.permits('submission.update'));
 
-const review = ({ target, data }) => {
+const handleActions = ({ target, data }) => {
   if (target.classList.contains('review-button')) emit('review', data);
+  if (target.classList.contains('delete-button')) emit('delete', data);
+  if (target.classList.contains('restore-button')) emit('restore', data);
 };
 const table = ref(null);
 const afterReview = (index) => { markRowsChanged(table.value.getRowPair(index)); };
-defineExpose({ afterReview });
+const afterDelete = (index) => { markRowsDeleted(table.value.getRowPair(index)); };
+
+const awaitingDeletedResponses = ref(new Set());
+const setAwaitingDeletedResponse = (instanceId, value) => {
+  if (value) {
+    awaitingDeletedResponses.value.add(instanceId);
+  } else {
+    awaitingDeletedResponses.value.delete(instanceId);
+  }
+};
+
+defineExpose({ afterReview, afterDelete, setAwaitingDeletedResponse });
 </script>
 
 <style lang="scss">

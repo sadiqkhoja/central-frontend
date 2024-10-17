@@ -16,7 +16,7 @@ except according to the terms contained in the LICENSE file.
       <span v-tooltip.text>{{ submission.__system.submitterName }}</span>
     </td>
     <td><date-time :iso="submission.__system.submissionDate"/></td>
-    <td v-if="!draft" class="state-and-actions">
+    <td v-if="!draft && !deleted" class="state-and-actions">
       <div class="col-content">
         <span class="state"><span :class="stateIcon"></span>{{ stateText }}</span>
         <span class="edits">
@@ -29,6 +29,12 @@ except according to the terms contained in the LICENSE file.
       </div>
       <div class="btn-group">
         <template v-if="canUpdate">
+          <button type="button"
+            class="delete-button btn btn-default"
+            :aria-disabled="awaitingResponse"
+            :aria-label="$t('action.delete')" v-tooltip.aria-label>
+            <span class="icon-trash"></span><spinner :state="awaitingResponse"/>
+          </button>
           <button type="button" class="review-button btn btn-default"
             :aria-label="$t('action.review')" v-tooltip.aria-label>
             <span class="icon-check"></span>
@@ -53,6 +59,21 @@ except according to the terms contained in the LICENSE file.
         </router-link>
       </div>
     </td>
+    <td v-if="!draft && deleted" class="state-and-actions">
+      <div class="col-content">
+        <date-time :iso="submission.__system.deletedAt"/>
+      </div>
+      <div class="btn-group">
+        <template v-if="canUpdate">
+          <button type="button"
+            class="restore-button btn btn-default"
+            :aria-disabled="awaitingResponse"
+            :aria-label="$t('action.restore')" v-tooltip.aria-label>
+            <span class="icon-recycle"></span><spinner :state="awaitingResponse"/>
+          </button>
+        </template>
+      </div>
+    </td>
   </tr>
 </template>
 
@@ -62,10 +83,11 @@ import DateTime from '../date-time.vue';
 import useReviewState from '../../composables/review-state';
 import useRoutes from '../../composables/routes';
 import { apiPaths } from '../../util/request';
+import Spinner from '../spinner.vue';
 
 export default {
   name: 'SubmissionMetadataRow',
-  components: { DateTime },
+  components: { DateTime, Spinner },
   props: {
     projectId: {
       type: String,
@@ -84,7 +106,12 @@ export default {
       type: Number,
       required: true
     },
-    canUpdate: Boolean
+    deleted: {
+      type: Boolean,
+      required: true
+    },
+    canUpdate: Boolean,
+    awaitingResponse: Boolean
   },
   setup() {
     const { reviewStateIcon } = useReviewState();
@@ -164,5 +191,7 @@ export default {
     font-size: 20px;
     margin-top: -1px;
   }
+
+  .delete-button .icon-trash { color: $color-danger; }
 }
 </style>

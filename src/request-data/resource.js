@@ -265,6 +265,7 @@ class Resource extends BaseResource {
       })
       .then(response => {
         cleanup();
+        console.log('here', this._name, this[_store], this.awaitingResponse);
         if (abortController.signal.aborted)
           throw new Error('request was canceled');
 
