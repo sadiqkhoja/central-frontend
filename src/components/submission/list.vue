@@ -64,7 +64,7 @@ except according to the terms contained in the LICENSE file.
       @success="afterReview"/>
     <submission-delete v-bind="deleteModal" checkbox @hide="deleteModal.hide()"
       @delete="requestDelete"/>
-      <submission-restore v-bind="restoreModal" checkbox @hide="restoreModal.hide()"
+    <submission-restore v-bind="restoreModal" checkbox @hide="restoreModal.hide()"
       @restore="requestRestore"/>
   </div>
 </template>
@@ -275,20 +275,18 @@ export default {
     document.addEventListener('scroll', this.afterScroll);
   },
   beforeUnmount() {
-    console.log('list before unmount');
     document.removeEventListener('scroll', this.afterScroll);
   },
   methods: {
     // `clear` indicates whether this.odata should be cleared before sending the
     // request. `refresh` indicates whether the request is a background refresh.
     fetchChunk(clear, refresh = false) {
-      const err = new Error();
-      console.log('in fetchchunk of list.vue', err);
       this.refreshing = refresh;
 
       // Are we fetching the first chunk of submissions or the next chunk?
       const first = clear || refresh;
-      this.odata.request({
+
+      const promises = [this.odata.request({
         url: apiPaths.odataSubmissions(
           this.projectId,
           this.xmlFormId,
@@ -306,7 +304,15 @@ export default {
         patch: !first
           ? (response) => this.odata.addChunk(response.data)
           : null
-      })
+      })];
+
+      if (refresh && !this.deleted) {
+        promises.push(this.fetchDeletedCount());
+      }
+
+      console.log(promises);
+
+      Promise.all(promises)
         .then(() => {
           if (this.deleted) {
             this.deletedSubmissionCount.value = this.odata.originalCount;
@@ -338,6 +344,22 @@ export default {
           url: apiPaths.submitters(this.projectId, this.xmlFormId, this.draft)
         }).catch(noop);
       }
+    },
+    fetchDeletedCount() {
+      return this.deletedSubmissionCount.request({
+        method: 'GET',
+        url: apiPaths.odataSubmissions(
+          this.projectId,
+          this.xmlFormId,
+          this.draft,
+          {
+            $top: 0,
+            $count: true,
+            $filter: 'not (__system/deletedAt eq null)',
+          }
+        ),
+        clear: false
+      });
     },
     scrolledToBottom() {
       // Using pageYOffset rather than scrollY in order to support IE.
@@ -379,8 +401,8 @@ export default {
         this.requestRestore([submission, this.confirmRestore]);
       }
     },
-    requestDelete(e) {
-      const [{ __id: uuid }, confirm] = e;
+    requestDelete(event) {
+      const [{ __id: uuid }, confirm] = event;
 
       if (this.deleteModal.state) this.deleteModal.awaitingResponse = true;
       else this.$refs.table.setAwaitingDeletedResponse(uuid, true);
@@ -411,6 +433,7 @@ export default {
           if (index !== -1) {
             this.odata.countRemoved();
             this.$refs.table.afterDelete(index);
+            this.$refs.table.setAwaitingDeletedResponse(uuid, false);
           }
         })
         .catch(() => {
@@ -450,6 +473,7 @@ export default {
           if (index !== -1) {
             this.odata.countRemoved();
             this.$refs.table.afterDelete(index);
+            this.$refs.table.setAwaitingDeletedResponse(uuid, false);
           }
         })
         .catch(() => {

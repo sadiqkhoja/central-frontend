@@ -73,7 +73,6 @@ const preventDisabledInput = (event) => {
 // Prevents the menu of a <select> element from being shown if the element has
 // aria-disabled="true". event.type will be either 'mousedown' or 'keydown'.
 const preventDisabledSelect = (event) => {
-  // console.log(event.key);
   if (event.target.tagName === 'SELECT' &&
     event.target.getAttribute('aria-disabled') === 'true' &&
     (event.type === 'mousedown' ||
