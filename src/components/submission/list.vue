@@ -310,9 +310,7 @@ export default {
         promises.push(this.fetchDeletedCount());
       }
 
-      console.log(promises);
-
-      Promise.all(promises)
+      Promise.allSettled(promises)
         .then(() => {
           if (this.deleted) {
             this.deletedSubmissionCount.value = this.odata.originalCount;
