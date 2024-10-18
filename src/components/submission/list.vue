@@ -215,9 +215,9 @@ export default {
       restoreModal: modalData(),
 
       // state that indicates whether we need to show delete confirmation dialog
-      confirmDelete: false,
+      confirmDelete: true,
       // state that indicates whether we need to show restore confirmation dialog
-      confirmRestore: false,
+      confirmRestore: true,
     };
   },
   computed: {
