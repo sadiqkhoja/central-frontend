@@ -15,11 +15,11 @@ except according to the terms contained in the LICENSE file.
     <loading :state="formDraft.initiallyLoading"/>
     <template v-if="formDraft.dataExists">
       <div class="row">
-        <div v-if="formDraft.isEmpty()" class="col-xs-6">
-          <form-edit-create-draft @success="fetchDraft(true)"/>
-        </div>
-        <div v-if="form.dataExists && form.publishedAt != null" class="col-xs-6">
+        <div v-if="form.dataExists && form.publishedAt != null">
           <form-edit-published-version/>
+        </div>
+        <div v-if="formDraft.isEmpty()">
+          <form-edit-create-draft @success="fetchDraft(true)"/>
         </div>
       </div>
       <template v-if="formDraft.isDefined()">
