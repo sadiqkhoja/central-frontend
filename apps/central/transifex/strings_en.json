@@ -3457,6 +3457,9 @@
       }
     },
     "FormEditDef": {
+      "title": {
+        "string": "Draft version: {version}"
+      },
       "subtitle": {
         "string": "Uploaded",
         "developer_comment": "This refers to the draft version of a Form."
@@ -3464,10 +3467,6 @@
       "changed": {
         "string": "Changed from published version",
         "developer_comment": "This refers to the draft version of a Form."
-      },
-      "versionName": {
-        "string": "Version name: {name}",
-        "developer_comment": "This is shown for a Form version."
       }
     },
     "FormEditDraftControls": {
@@ -3515,7 +3514,7 @@
     },
     "FormEditPublishedVersion": {
       "title": {
-        "string": "Current version",
+        "string": "Current version: {version}",
         "developer_comment": "This refers to the current version of a Form."
       },
       "subtitle": {
