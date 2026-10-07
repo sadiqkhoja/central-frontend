@@ -149,3 +149,9 @@ defineExpose({
   ...reexpose(table, ['afterUpdate', 'afterDelete'])
 });
 </script>
+
+<style lang="scss">
+#entity-table:has(tbody:empty) {
+  display: none;
+}
+</style>

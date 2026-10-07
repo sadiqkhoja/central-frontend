@@ -161,3 +161,9 @@ defineExpose({
   ...reexpose(table, ['afterReview', 'afterDelete'])
 });
 </script>
+
+<style lang="scss">
+#submission-table:has(tbody:empty) {
+  display: none;
+}
+</style>

@@ -495,10 +495,6 @@ export default {
 }
 
 #submission-list .radio-field { margin-left: auto; }
-
-#submission-table:has(tbody tr) + .empty-table-message {
-  display: none;
-}
 </style>
 
 <i18n lang="json5">
