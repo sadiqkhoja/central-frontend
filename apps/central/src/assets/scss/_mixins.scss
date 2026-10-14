@@ -1,10 +1,10 @@
 @import './variables';
 
 @mixin icon-box {
-  padding: min(0.5em, 10px);
+  padding: min(0.5em, 8px);
   border-radius: 6px;
   color: $color-accent-primary;
-  background-color: rgba($color-accent-primary, 0.1);  
+  background-color: rgba($color-accent-primary, 0.1);
 }
 
 

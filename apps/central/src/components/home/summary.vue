@@ -22,7 +22,7 @@ except according to the terms contained in the LICENSE file.
         <template #subheader>{{ $tc('plural.project', projects.length ?? 0) }}</template>
         <template #body>{{ $t('projects.body') }}</template>
       </home-summary-item>
-      <home-summary-item v-if="currentUser.can('user.list')" to="/users" icon="user-circle">
+      <home-summary-item v-if="currentUser.can('user.list')" to="/users" icon="account-circle">
         <template #header>
           <spinner v-if="users.initiallyLoading" inline/>
           <template v-else-if="users.dataExists">
@@ -33,11 +33,11 @@ except according to the terms contained in the LICENSE file.
         <template #body>{{ $t('users.body') }}</template>
       </home-summary-item>
       <home-summary-item to="https://docs.getodk.org/central-intro/"
-        icon="book">
+        icon="menu-book">
         <template #header>{{ $t('common.docs') }}</template>
         <template #body>{{ $t('docs.body') }}</template>
       </home-summary-item>
-      <home-summary-item to="https://forum.getodk.org/" icon="comments-o">
+      <home-summary-item to="https://forum.getodk.org/" icon="comment">
         <template #header>{{ $t('common.forum') }}</template>
         <template #body>{{ $t('forum.body') }}</template>
       </home-summary-item>

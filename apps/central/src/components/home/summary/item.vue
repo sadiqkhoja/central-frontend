@@ -12,7 +12,7 @@ except according to the terms contained in the LICENSE file.
 <template>
   <linkable tag="div" :to="to" class="home-summary-item">
     <div class="heading">
-      <span :class="`icon-${icon}`"></span>
+      <AppIcon :icon="icon"/>
       <div>
         <div class="header">
           <slot name="header"></slot>
@@ -27,11 +27,12 @@ except according to the terms contained in the LICENSE file.
 </template>
 
 <script>
+import AppIcon from '../../app-icon.vue';
 import Linkable from '../../linkable.vue';
 
 export default {
   name: 'HomeSummaryItem',
-  components: { Linkable },
+  components: { AppIcon, Linkable },
   props: {
     to: String,
     icon: {
@@ -60,7 +61,7 @@ export default {
 
     > [class^="icon-"] {
       @include icon-box;
-      font-size: 24px;
+      font-size: 44px;
     }
   }
 

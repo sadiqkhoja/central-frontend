@@ -12,6 +12,7 @@ except according to the terms contained in the LICENSE file.
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import vue from '@vitejs/plugin-vue';
+import Icons from 'unplugin-icons/vite';
 import { defineConfig } from 'vite';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'url';
@@ -74,6 +75,10 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     vue(),
     devAppRouter(),
+    Icons({
+      defaultClass: 'icon-material',
+      scale: 1.0
+    }),
     VueI18nPlugin({
       include: resolve(dirname(fileURLToPath(import.meta.url)), './apps/central/src/locales/**'),
       compositionOnly: false,
