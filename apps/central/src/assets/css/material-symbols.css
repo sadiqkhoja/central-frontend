@@ -1,0 +1,38 @@
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  src: url('../fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
+[class*="icon-"] {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+/* fallback icon temporary */
+[class*="icon-"]::before {
+  content: "home";
+}
+.icon-archive::before {
+  content: "archive";
+}
+
+.icon-user-circle::before {
+  content: "account_circle";
+}
+
+.icon-book::before {
+  content: "menu_book";
+}
+
+.icon-comments-o::before {
+  content: "forum";
+}
